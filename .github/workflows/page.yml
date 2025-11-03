@@ -36,7 +36,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./
-          cname: weread.gh.yycc.dev
+          cname: weread.yaoling.cc
           publish_branch: gh-pages
           enable_jekyll: true
           keep_files: false
