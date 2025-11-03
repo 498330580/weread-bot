@@ -1067,8 +1067,8 @@ class CurlParser:
         cookie_header = next((v for k, v in headers_temp.items()
                              if k.lower() == 'cookie'), '')
 
-        # 从 -b 'xxx' 提取
-        cookie_b = re.search(r"-b '([^']+)'", curl_command)
+        # 从 -b 'xxx' 或 -b $'xxx' 提取
+        cookie_b = re.search(r"-b (?:\$)?'([^']+)'", curl_command)
         cookie_string = cookie_b.group(1) if cookie_b else cookie_header
 
         # 解析 cookie 字符串

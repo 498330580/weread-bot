@@ -1,14 +1,14 @@
 # WeRead Bot: 微信读书阅读机器人
 
-[![Auto Reading Bot](https://img.shields.io/github/actions/workflow/status/funnyzak/weread-bot/auto-reading.yml?style=flat-square&label=Auto%20Reading)](https://github.com/funnyzak/weread-bot/actions/workflows/auto-reading.yml)
-[![Docker Tags](https://img.shields.io/docker/v/funnyzak/weread-bot?sort=semver&style=flat-square&label=docker%20image)](https://hub.docker.com/r/funnyzak/weread-bot/)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/funnyzak/weread-bot?style=flat-square)](https://hub.docker.com/r/funnyzak/weread-bot/)
-[![Python](https://img.shields.io/badge/python-3.9+-blue?style=flat-square)](https://www.python.org/)
-[![GitHub license](https://img.shields.io/github/license/funnyzak/weread-bot?style=flat-square)](https://github.com/funnyzak/weread-bot/blob/main/LICENSE)
+[![Auto Reading Bot](https://img.shields.io/github/actions/workflow/status/498330580/weread-bot/auto-reading.yml?style=flat-square&label=Auto%20Reading)](https://github.com/498330580/weread-bot/actions/workflows/auto-reading.yml)
+[![Docker Tags](https://img.shields.io/docker/v/498330580/weread-bot?sort=semver&style=flat-square&label=docker%20image)](https://hub.docker.com/r/498330580/weread-bot/)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/498330580/weread-bot?style=flat-square)](https://hub.docker.com/r/498330580/weread-bot/)
+[![Python](https://img.shields.io/badge/python-3.10+-blue?style=flat-square)](https://www.python.org/)
+[![GitHub license](https://img.shields.io/github/license/498330580/weread-bot?style=flat-square)](https://github.com/498330580/weread-bot/blob/main/LICENSE)
 
 WeRead Bot 是一个易用的微信读书自动阅读机器人，通过模拟真实用户阅读行为来积累阅读时长，支持多用户多种运行模式（立即执行、定时任务、守护进程），适用于需要提升微信读书等级或完成阅读任务的用户场景。
 
-💗 感谢 [findmover/wxread](https://github.com/findmover/wxread) 提供思路和部分代码支持。
+💗 感谢 [funnyzak/weread-bot](https://github.com/funnyzak/weread-bot) 提供思路和部分代码支持。
 
 ## 核心功能
 
@@ -30,7 +30,7 @@ WeRead Bot 是一个易用的微信读书自动阅读机器人，通过模拟真
 
 ## 运行预览
 
-<img src="https://raw.githubusercontent.com/funnyzak/weread-bot/refs/heads/main/.github/assets/preview.png" alt="运行预览" style="filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); border-radius: 8px;"/>
+<img src="https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/.github/assets/preview.png" alt="运行预览" style="filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); border-radius: 8px;"/>
 
 ## 快速开始
 
@@ -38,8 +38,8 @@ WeRead Bot 是一个易用的微信读书自动阅读机器人，通过模拟真
 
 ```bash
 # 1. 下载文件
-wget https://raw.githubusercontent.com/funnyzak/weread-bot/refs/heads/main/weread-bot.py
-wget https://raw.githubusercontent.com/funnyzak/weread-bot/refs/heads/main/requirements.txt
+wget https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/weread-bot.py
+wget https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/requirements.txt
 
 # 2. 安装依赖
 pip install -r requirements.txt
@@ -65,7 +65,7 @@ python weread-bot.py
 
 ```bash
 # 1. 下载配置模板
-wget https://raw.githubusercontent.com/funnyzak/weread-bot/refs/heads/main/config.yaml.example
+wget https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/config.yaml.example
 
 # 2. 创建配置文件
 cp config.yaml.example config.yaml
@@ -82,7 +82,7 @@ python weread-bot.py --config config.yaml
 
 ```bash
 # 1. 下载配置模板
-wget https://raw.githubusercontent.com/funnyzak/weread-bot/refs/heads/main/config.yaml.example
+wget https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/config.yaml.example
 
 # 2. 创建多用户配置文件进行配置
 cp config.yaml.example multiuser-config.yaml
@@ -106,7 +106,7 @@ python weread-bot.py --config multiuser-config.yaml
 # 3. 在 Actions 页面手动触发或设置定时运行
 ```
 
-> **详细配置指南**: [GitHub Actions 自动阅读配置指南](https://github.com/funnyzak/weread-bot/blob/main/docs/github-action-autoread-guide.md)
+> **详细配置指南**: [GitHub Actions 自动阅读配置指南](https://github.com/498330580/weread-bot/blob/main/docs/github-action-autoread-guide.md)
 
 ### 方式五：不同运行模式
 
@@ -137,14 +137,14 @@ docker run -d --name weread-bot \
   -e TARGET_DURATION="30-50" \
   -e READING_MODE="smart_random" \
   -e PUSHPLUS_TOKEN="your_token" \
-  funnyzak/weread-bot:latest
+  498330580/weread-bot:latest
 ```
 
 > 更多 Docker 方式运行方式，详见 [Docker部署](#docker部署)。
 
 ## 配置说明
 
-配置项可通过环境变量或配置文件设置，优先级为：环境变量 > 配置文件 > 程序默认值。 配置文件模板见 [`config.yaml.example`](https://raw.githubusercontent.com/funnyzak/weread-bot/refs/heads/main/config.yaml.example)。
+配置项可通过环境变量或配置文件设置，优先级为：环境变量 > 配置文件 > 程序默认值。 配置文件模板见 [`config.yaml.example`](https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/config.yaml.example)。
 
 ### 配置生成器（推荐新手）
 
@@ -155,7 +155,7 @@ docker run -d --name weread-bot \
 open https://weread.gh.yycc.dev/config-generator.html
 
 # 或本地运行配置生成器
-wget https://raw.githubusercontent.com/funnyzak/weread-bot/refs/heads/main/config-generator.html
+wget https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/config-generator.html
 open config-generator.html
 ```
 
@@ -613,7 +613,7 @@ docker run -d \
   -e TARGET_DURATION="60-70" \
   -e PUSHPLUS_TOKEN="your_token" \
   --name weread-bot \
-  funnyzak/weread-bot
+  498330580/weread-bot
 
 # 运行容器（配置文件方式）
 docker run -d \
@@ -622,7 +622,7 @@ docker run -d \
   -v $(pwd)/curl_command.txt:/app/curl_command.txt \
   -v $(pwd)/logs:/app/logs \
   --name weread-bot \
-  funnyzak/weread-bot
+  498330580/weread-bot
 
 # 守护进程模式
 docker run -d \
@@ -630,7 +630,7 @@ docker run -d \
   -e WEREAD_CURL_STRING="your_curl_here" \
   -e STARTUP_MODE="daemon" \
   --name weread-daemon \
-  funnyzak/weread-bot
+  498330580/weread-bot
 
 # 查看日志
 docker logs -f weread-bot
@@ -642,7 +642,7 @@ docker logs -f weread-bot
 version: '3.8'
 services:
   weread-bot:
-    image: funnyzak/weread-bot:latest
+    image: 498330580/weread-bot:latest
     container_name: weread-bot
     environment:
       - TZ=Asia/Shanghai
