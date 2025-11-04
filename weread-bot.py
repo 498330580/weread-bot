@@ -5,8 +5,8 @@
 项目信息:
     名称: WeRead Bot
     版本: 0.3.1
-    作者: funnyzak
-    仓库: https://github.com/funnyzak/weread-bot
+    作者: 498330580
+    仓库: https://github.com/498330580/weread-bot
     许可: MIT License
 
 项目说明:
@@ -34,7 +34,7 @@
 参考致谢:
     - 感谢 https://github.com/findmover/wxread 提供思路和部分代码支持
 
-更多详细说明请访问项目仓库：https://github.com/funnyzak/weread-bot
+更多详细说明请访问项目仓库：https://github.com/498330580/weread-bot
 """
 
 import os
@@ -48,6 +48,7 @@ import asyncio
 import urllib.parse
 import signal
 import argparse
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
@@ -62,7 +63,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 VERSION = "0.3.1"
-REPO = "https://github.com/funnyzak/weread-bot"
+REPO = "https://github.com/498330580/weread-bot"
 
 
 class NotificationMethod(Enum):
@@ -3251,6 +3252,9 @@ async def main():
             pass
 
 if __name__ == "__main__":
+    # 加载.env文件中的环境变量
+    load_dotenv()
+    
     # 检查依赖
     missing_deps = []
 

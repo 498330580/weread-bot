@@ -44,9 +44,15 @@ wget https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/requ
 # 2. 安装依赖
 pip install -r requirements.txt
 
-# 3. 设置环境变量
-# 设置CURL命令文件路径（推荐）
+# 3. 设置环境变量或使用.env文件
+# 方式1: 直接设置环境变量
 export WEREAD_CURL_BASH_FILE_PATH="curl_command.txt"
+# 或 设置 CURL命令字符串
+export WEREAD_CURL_STRING="curl 'https://weread.qq.com/web/book/read' -H 'cookie: wr_skey=user1_key; ...' --data-raw '{...}'"
+
+# 方式2: 创建.env文件设置环境变量（推荐）
+# 在项目根目录创建.env文件，添加如下内容：
+WEREAD_CURL_BASH_FILE_PATH="curl_command.txt"
 # 或 设置 CURL命令字符串
 export WEREAD_CURL_STRING="curl 'https://weread.qq.com/web/book/read' -H 'cookie: wr_skey=user1_key; ...' --data-raw '{...}'"
 
@@ -152,7 +158,7 @@ docker run -d --name weread-bot \
 
 ```bash
 # 访问在线配置生成器
-open https://weread.gh.yycc.dev/config-generator.html
+open https://weread.yaoling.cc/config-generator.html
 
 # 或本地运行配置生成器
 wget https://raw.githubusercontent.com/498330580/weread-bot/refs/heads/main/config-generator.html
@@ -160,8 +166,8 @@ open config-generator.html
 ```
 
 **在线访问地址：**
-- 🌐 **配置生成器**: https://weread.gh.yycc.dev/config-generator.html
-- 📖 **项目文档**: https://weread.gh.yycc.dev/
+- 🌐 **配置生成器**: https://weread.yaoling.cc/config-generator.html
+- 📖 **项目文档**: https://weread.yaoling.cc/
 
 ### 必需配置
 
