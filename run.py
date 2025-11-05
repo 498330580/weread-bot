@@ -6,7 +6,6 @@ WeRead Bot Flask Web 应用启动脚本
 这是一个启动脚本，可以直接运行来启动Flask应用
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -30,10 +29,10 @@ try:
     from app import app
     
     if __name__ == '__main__':
-        # 从环境变量或默认值获取配置
-        host = os.getenv('FLASK_HOST', '0.0.0.0')
-        port = int(os.getenv('FLASK_PORT', 5000))
-        debug = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 'yes')
+        # Flask 应用配置
+        host = '0.0.0.0'
+        port = 5000
+        debug = False
         
         print(f"""
 ╔════════════════════════════════════════════════════╗

@@ -543,7 +543,7 @@ if __name__ == '__main__':
     # 启动Flask应用
     app.run(
         host='0.0.0.0',
-        port=int(os.getenv('FLASK_PORT', 5000)),
-        debug=os.getenv('FLASK_DEBUG', False),
+        port=5000,
+        debug=False,
         threaded=True
     )
