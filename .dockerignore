@@ -37,7 +37,6 @@ logs/*
 *.log
 config.yaml
 curl_command.txt
-.env
 
 # Docker
 Dockerfile

@@ -19,10 +19,7 @@ RUN mkdir -p logs templates static services
 # 暴露端口
 EXPOSE 5000
 
-# 环境变量
-ENV FLASK_HOST=0.0.0.0
-ENV FLASK_PORT=5000
-ENV FLASK_DEBUG=False
+# 时区配置
 ENV TZ=Asia/Shanghai
 
 # 启动应用
