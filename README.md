@@ -99,20 +99,7 @@ python app.py
 
 ### 方式二：命令行版本
 
-如需使用原始命令行版本：
-
-```bash
-# 基础使用
-python weread-bot.py
-
-# 指定配置文件
-python weread-bot.py --config config.yaml
-
-# 不同的运行模式
-python weread-bot.py --mode immediate    # 立即执行
-python weread-bot.py --mode scheduled    # 定时执行
-python weread-bot.py --mode daemon       # 守护进程
-```
+如需使用原始命令行版本，请参考项目早期版本。
 
 ### 方式三：Docker部署
 
@@ -149,7 +136,6 @@ weread-bot/
 ├── Dockerfile                 # Docker 镜像配置
 ├── docker-compose.yml         # Docker Compose 配置
 ├── .dockerignore              # Docker 忽略文件
-├── .env.example               # 环境变量示例
 ├── logs/                      # 日志文件目录
 ├── README.md                  # 项目文档（本文件）
 └── LICENSE                    # MIT 许可证
@@ -157,15 +143,17 @@ weread-bot/
 
 ## 配置说明
 
-### 配置优先级
+### 配置管理方式
 
-**环境变量 > Web界面配置 > 配置文件 > 程序默认值**
+**Web 界面配置 > 配置文件 > 程序默认值**
+
+Web 服务通过 Web 界面管理所有配置，配置会实时保存到 `config.yaml` 文件中。
 
 ### 必需配置
 
-| 配置项 | 环境变量 | 说明 |
-|--------|----------|------|
-| CURL配置 | `WEREAD_CURL_STRING` 或 `WEREAD_CURL_BASH_FILE_PATH` | 微信读书抓包获取的curl命令或文件路径 |
+| 配置项 | 描述 |
+|--------|------|
+| CURL配置 | 微信读书抓包获取的curl命令或文件路径 |
 
 ### Web界面覆盖的配置项
 
@@ -210,66 +198,13 @@ weread-bot/
 - 会话间隔
 - 每日最大会话数
 
-### 环境变量配置
+### 配置文件示例
 
-对于不使用Web界面的场景，可以通过环境变量配置：
-
-```env
-# 时区设置
-TZ=Asia/Shanghai
-
-# CURL 命令配置
-WEREAD_CURL_STRING=curl 'https://weread.qq.com/web/book/read' -H 'cookie: wr_skey=...' --data-raw '{...}'
-# 或使用文件路径
-WEREAD_CURL_BASH_FILE_PATH=curl_command.txt
-
-# 应用配置
-STARTUP_MODE=immediate
-STARTUP_DELAY=60-300
-
-# 阅读配置
-READING_MODE=smart_random
-TARGET_DURATION=60-70
-READING_INTERVAL=25-35
-
-# 网络配置
-NETWORK_TIMEOUT=30
-RETRY_TIMES=3
-RETRY_DELAY=5-15
-RATE_LIMIT=10
-
-# 人类模拟配置
-HUMAN_SIMULATION_ENABLED=true
-READING_SPEED_VARIATION=true
-BREAK_PROBABILITY=0.15
-BREAK_DURATION=30-180
-
-# 通知配置
-NOTIFICATION_ENABLED=true
-INCLUDE_STATISTICS=true
-
-# 定时任务配置
-SCHEDULE_ENABLED=false
-CRON_EXPRESSION=0 */2 * * *
-TIMEZONE=Asia/Shanghai
-
-# 守护进程配置
-DAEMON_ENABLED=false
-SESSION_INTERVAL=120-180
-MAX_DAILY_SESSIONS=12
-
-# 日志配置
-LOG_LEVEL=INFO
-LOG_FORMAT=detailed
-LOG_FILE=logs/weread.log
-LOG_MAX_SIZE=10MB
-LOG_BACKUP_COUNT=5
-LOG_CONSOLE=true
-```
+当前配置会自动使用提供的默认值。想了解每个配置项的详细信息，请查看 `config.yaml.example` 文件。
 
 ### 多用户配置
 
-```yaml
+```
 curl_config:
   users:
     - name: "用户1"
@@ -386,11 +321,9 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 ```
 
 ### 修改端口
-```bash
-# 本地开发
-FLASK_PORT=8080 python run.py
 
-# Docker
+```bash
+# Docker 重新映射
 docker run -p 8080:5000 weread-bot-web
 
 # Gunicorn
@@ -461,17 +394,19 @@ curl http://localhost:5000/api/health
 
 **方式1：直接CURL字符串**
 ```bash
-export WEREAD_CURL_STRING="curl 'https://weread.qq.com/web/book/read' ..."
+# 在Web界面的CURL配置中粘贴：
+curl 'https://weread.qq.com/web/book/read' -H 'cookie: wr_skey=...' --data-raw '{...}'
 ```
 
 **方式2：保存到文件**
 ```bash
+# 将curl命令保存到curl_command.txt文件
 echo "curl '...' " > curl_command.txt
-export WEREAD_CURL_BASH_FILE_PATH="curl_command.txt"
+# 然后在Web界面加载
 ```
 
 **方式3：在Web界面编辑**
-访问 http://localhost:5000/config → 点击编辑CURL按钮
+访问 http://localhost:5000/config → 点击编辑CURL按鈕
 
 ## 常见问题
 
@@ -479,7 +414,7 @@ export WEREAD_CURL_BASH_FILE_PATH="curl_command.txt"
 **A:** 运行 `pip install -r requirements.txt`
 
 ### Q: 端口5000已被占用
-**A:** 使用不同端口：`FLASK_PORT=8080 python run.py`
+**A:** 修改run.py中的port值为你需要的端口号（国为5000）
 
 ### Q: 无法访问Web界面
 **A:** 
