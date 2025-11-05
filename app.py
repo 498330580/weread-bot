@@ -13,10 +13,6 @@ from pathlib import Path
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
-from dotenv import load_dotenv
-
-# 加载环境变量
-load_dotenv()
 
 # 创建Flask应用
 app = Flask(__name__)
