@@ -410,7 +410,7 @@ echo "curl '...' " > curl_command.txt
 **A:** 运行 `pip install -r requirements.txt`
 
 ### Q: 端口5000已被占用
-**A:** 修改run.py中的port值为你需要的端口号（国为5000）
+**A:** 修改run.py中的port值为你需要的端口号（默认5000）
 
 ### Q: 无法访问Web界面
 **A:** 
