@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  weread-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: weread-bot-web
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - FLASK_DEBUG=False
+      - TZ=Asia/Shanghai
+      # 配置你的CURL命令或文件路径
+      # - WEREAD_CURL_STRING=${WEREAD_CURL_STRING}
+      # - WEREAD_CURL_BASH_FILE_PATH=/app/curl_command.txt
+      # 其他配置
+      # - TARGET_DURATION=60-70
+      # - READING_MODE=smart_random
+    volumes:
+      # 挂载日志目录
+      - ./logs:/app/logs
+      # 挂载配置文件
+      - ./config.yaml:/app/config.yaml:ro
+      # 挂载CURL命令文件（可选）
+      # - ./curl_command.txt:/app/curl_command.txt:ro
+    restart: unless-stopped
+    networks:
+      - weread-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  weread-network:
+    driver: bridge

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeRead Bot - Web版微信读书阅读机器人</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js"></script>
+    <style>
+        .btn-primary { @apply px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors; }
+        .btn-secondary { @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors; }
+        .badge { @apply inline-block px-3 py-1 rounded-full text-sm font-medium; }
+        .badge-success { @apply bg-green-100 text-green-800; }
+        .badge-danger { @apply bg-red-100 text-red-800; }
+        .badge-warning { @apply bg-yellow-100 text-yellow-800; }
+        .badge-info { @apply bg-blue-100 text-blue-800; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-indigo-600">📚 WeRead Bot</h1>
+                    <span class="ml-4 text-sm text-gray-600">Web版微信读书阅读机器人</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-700 hover:text-gray-900 font-medium">主页</a>
+                    <a href="/dashboard" class="text-gray-700 hover:text-gray-900 font-medium">📊 仪表板</a>
+                    <a href="/config" class="text-gray-700 hover:text-gray-900 font-medium">⚙️ 配置</a>
+                    <div id="taskStatus" class="badge badge-info">就绪</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="space-y-8">
+            <!-- Status Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm font-medium">应用状态</h3>
+                    <p class="text-2xl font-bold text-gray-900 mt-2" id="appStatus">运行中</p>
+                    <p class="text-sm text-gray-500 mt-1">Web服务正常</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm font-medium">任务状态</h3>
+                    <p class="text-2xl font-bold text-gray-900 mt-2" id="taskStatusText">未运行</p>
+                    <p class="text-sm text-gray-500 mt-1" id="taskTime">就绪</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm font-medium">进度</h3>
+                    <p class="text-2xl font-bold text-gray-900 mt-2" id="taskProgress">0%</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div id="progressBar" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm font-medium">配置文件</h3>
+                    <p class="text-2xl font-bold text-gray-900 mt-2">config.yaml</p>
+                    <p class="text-sm text-gray-500 mt-1">已加载</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">快速操作</h2>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="startTask()" class="btn-primary">
+                        ▶️ 启动任务
+                    </button>
+                    <button onclick="stopTask()" class="btn-secondary">
+                        ⏹️ 停止任务
+                    </button>
+                    <button onclick="navigateTo('config')" class="btn-secondary">
+                        ⚙️ 编辑配置
+                    </button>
+                    <button onclick="downloadConfig()" class="btn-secondary">
+                        ⬇️ 导出配置
+                    </button>
+                    <button onclick="document.getElementById('configFile').click()" class="btn-secondary">
+                        ⬆️ 导入配置
+                    </button>
+                    <input type="file" id="configFile" accept=".yaml,.yml" style="display:none;" onchange="uploadConfig(event)">
+                </div>
+            </div>
+
+            <!-- Recent Logs -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">最近日志</h2>
+                    <button onclick="clearLogs()" class="text-sm text-red-600 hover:text-red-700">清空</button>
+                </div>
+                <div id="logContainer" class="bg-gray-50 rounded p-4 font-mono text-sm max-h-96 overflow-y-auto">
+                    <p class="text-gray-600">日志将在这里显示...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Config Section -->
+        <div id="configSection" style="display:none;" class="space-y-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">配置编辑</h2>
+                <textarea id="configEditor" class="w-full h-96 p-4 border border-gray-300 rounded-lg font-mono text-sm"
+                    placeholder="YAML配置内容将显示在此..."></textarea>
+                <div class="flex gap-4 mt-4">
+                    <button onclick="saveConfig()" class="btn-primary">💾 保存配置</button>
+                    <button onclick="reloadConfig()" class="btn-secondary">🔄 重新加载</button>
+                    <button onclick="resetConfig()" class="btn-secondary">↻ 恢复默认</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Section -->
+        <div id="logsSection" style="display:none;" class="space-y-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">完整日志</h2>
+                    <div class="space-x-2">
+                        <button onclick="clearLogs()" class="btn-secondary">清空日志</button>
+                        <button onclick="downloadLogs()" class="btn-secondary">下载日志</button>
+                    </div>
+                </div>
+                <div id="fullLogContainer" class="bg-gray-50 rounded p-4 font-mono text-sm max-h-96 overflow-y-auto">
+                    <p class="text-gray-600">日志将在这里显示...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 'dashboard';
+        let taskCheckInterval = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            startTaskMonitoring();
+        });
+
+        // 页面导航
+        function navigateTo(page) {
+            currentPage = page;
+            document.getElementById('dashboardSection').style.display = page === 'dashboard' ? 'block' : 'none';
+            document.getElementById('configSection').style.display = page === 'config' ? 'block' : 'none';
+            document.getElementById('logsSection').style.display = page === 'logs' ? 'block' : 'none';
+            
+            if (page === 'config') {
+                loadConfig();
+            } else if (page === 'logs') {
+                loadFullLogs();
+            }
+        }
+
+        // 启动任务
+        async function startTask() {
+            try {
+                const response = await axios.post('/api/task/start', {});
+                showNotification('✅ 任务已启动', 'success');
+                setTimeout(loadDashboard, 1000);
+            } catch (error) {
+                showNotification('❌ 启动失败: ' + error.response?.data?.error, 'error');
+            }
+        }
+
+        // 停止任务
+        async function stopTask() {
+            try {
+                const response = await axios.post('/api/task/stop', {});
+                showNotification('⏹️ 任务已停止', 'success');
+                setTimeout(loadDashboard, 1000);
+            } catch (error) {
+                showNotification('❌ 停止失败: ' + error.response?.data?.error, 'error');
+            }
+        }
+
+        // 加载仪表板
+        async function loadDashboard() {
+            try {
+                const response = await axios.get('/api/task/status');
+                const status = response.data.data;
+                
+                document.getElementById('taskStatusText').textContent = 
+                    status.is_running ? '运行中' : '未运行';
+                document.getElementById('taskStatus').textContent = 
+                    status.is_running ? '运行中' : '就绪';
+                document.getElementById('taskStatus').className = 
+                    status.is_running ? 'badge badge-success' : 'badge badge-info';
+                
+                loadLogs();
+            } catch (error) {
+                console.error('加载仪表板失败:', error);
+            }
+        }
+
+        // 加载日志
+        async function loadLogs(limit = 20) {
+            try {
+                const response = await axios.get('/api/logs?limit=' + limit);
+                const logs = response.data.data;
+                const logContainer = document.getElementById('logContainer');
+                
+                if (logs.length === 0) {
+                    logContainer.innerHTML = '<p class="text-gray-600">没有日志</p>';
+                    return;
+                }
+                
+                logContainer.innerHTML = logs.map(log => {
+                    const time = new Date(log.timestamp).toLocaleTimeString('zh-CN');
+                    const levelClass = {
+                        'DEBUG': 'text-gray-600',
+                        'INFO': 'text-blue-600',
+                        'WARNING': 'text-yellow-600',
+                        'ERROR': 'text-red-600'
+                    }[log.level] || 'text-gray-600';
+                    
+                    return `<div class="mb-1">
+                        <span class="text-gray-500">[${time}]</span>
+                        <span class="${levelClass} font-medium">[${log.level}]</span>
+                        <span class="text-gray-700">${log.message}</span>
+                    </div>`;
+                }).join('');
+                
+                logContainer.scrollTop = logContainer.scrollHeight;
+            } catch (error) {
+                console.error('加载日志失败:', error);
+            }
+        }
+
+        // 加载完整日志
+        async function loadFullLogs(limit = 500) {
+            try {
+                const response = await axios.get('/api/logs?limit=' + limit);
+                const logs = response.data.data;
+                const logContainer = document.getElementById('fullLogContainer');
+                
+                if (logs.length === 0) {
+                    logContainer.innerHTML = '<p class="text-gray-600">没有日志</p>';
+                    return;
+                }
+                
+                logContainer.innerHTML = logs.map(log => {
+                    const time = new Date(log.timestamp).toLocaleTimeString('zh-CN');
+                    const levelClass = {
+                        'DEBUG': 'text-gray-600',
+                        'INFO': 'text-blue-600',
+                        'WARNING': 'text-yellow-600',
+                        'ERROR': 'text-red-600'
+                    }[log.level] || 'text-gray-600';
+                    
+                    return `<div class="mb-1">
+                        <span class="text-gray-500">[${time}]</span>
+                        <span class="${levelClass} font-medium">[${log.level}]</span>
+                        <span class="text-gray-700">${log.message}</span>
+                    </div>`;
+                }).join('');
+                
+                logContainer.scrollTop = logContainer.scrollHeight;
+            } catch (error) {
+                console.error('加载日志失败:', error);
+            }
+        }
+
+        // 清空日志
+        async function clearLogs() {
+            if (!confirm('确定要清空所有日志吗？')) return;
+            
+            try {
+                await axios.post('/api/logs/clear', {});
+                showNotification('✅ 日志已清空', 'success');
+                loadLogs();
+                loadFullLogs();
+            } catch (error) {
+                showNotification('❌ 清空失败: ' + error.response?.data?.error, 'error');
+            }
+        }
+
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const response = await axios.get('/api/config');
+                const config = response.data.data;
+                document.getElementById('configEditor').value = JSON.stringify(config, null, 2);
+            } catch (error) {
+                console.error('加载配置失败:', error);
+            }
+        }
+
+        // 保存配置
+        async function saveConfig() {
+            try {
+                const configText = document.getElementById('configEditor').value;
+                const config = JSON.parse(configText);
+                
+                const response = await axios.post('/api/config', config);
+                showNotification('✅ 配置已保存', 'success');
+            } catch (error) {
+                showNotification('❌ 保存失败: ' + (error.response?.data?.error || error.message), 'error');
+            }
+        }
+
+        // 重新加载配置
+        async function reloadConfig() {
+            loadConfig();
+            showNotification('✅ 配置已重新加载', 'success');
+        }
+
+        // 恢复默认配置
+        async function resetConfig() {
+            if (!confirm('确定要恢复默认配置吗？')) return;
+            
+            try {
+                // 这个功能需要在后端实现
+                showNotification('请使用API手动恢复默认配置', 'info');
+            } catch (error) {
+                showNotification('❌ 恢复失败: ' + error.message, 'error');
+            }
+        }
+
+        // 下载配置
+        async function downloadConfig() {
+            try {
+                window.location.href = '/api/export/config';
+                showNotification('✅ 配置文件已下载', 'success');
+            } catch (error) {
+                showNotification('❌ 下载失败: ' + error.message, 'error');
+            }
+        }
+
+        // 下载日志
+        async function downloadLogs() {
+            try {
+                window.location.href = '/api/logs/download';
+                showNotification('✅ 日志文件已下载', 'success');
+            } catch (error) {
+                showNotification('❌ 下载失败: ' + error.message, 'error');
+            }
+        }
+
+        // 上传配置
+        async function uploadConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await axios.post('/api/import/config', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                
+                showNotification('✅ 配置已导入', 'success');
+                setTimeout(loadDashboard, 1000);
+            } catch (error) {
+                showNotification('❌ 导入失败: ' + error.response?.data?.error, 'error');
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            // 可以集成toast通知库
+        }
+
+        // 监控任务状态
+        function startTaskMonitoring() {
+            taskCheckInterval = setInterval(() => {
+                if (currentPage === 'dashboard') {
+                    loadDashboard();
+                }
+            }, 2000);
+        }
+
+        // 清理
+        window.addEventListener('beforeunload', () => {
+            if (taskCheckInterval) {
+                clearInterval(taskCheckInterval);
+            }
+        });
+    </script>
+</body>
+</html>
