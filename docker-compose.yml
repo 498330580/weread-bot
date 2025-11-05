@@ -10,9 +10,6 @@ services:
       - "5000:5000"
     environment:
       - TZ=Asia/Shanghai
-      # 配置你的CURL命令或文件路径
-      # - WEREAD_CURL_STRING=${WEREAD_CURL_STRING}
-      # - WEREAD_CURL_BASH_FILE_PATH=/app/curl_command.txt
     volumes:
       # 挂载日志目录
       - ./logs:/app/logs
