@@ -317,7 +317,7 @@ def import_config():
             }), 400
         
         file = request.files['file']
-        if file.filename == '':
+        if not file.filename or file.filename == '':
             return jsonify({
                 'success': False,
                 'error': '文件名为空'
@@ -326,7 +326,7 @@ def import_config():
         if not file.filename.endswith(('.yaml', '.yml')):
             return jsonify({
                 'success': False,
-                'error': '只支持YAML文件'
+                'error': '只支YAML文件'
             }), 400
         
         # 保存上传的文件
