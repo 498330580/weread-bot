@@ -10,7 +10,6 @@
 weread-bot/
 ├── app.py                      # Flask 应用主程序
 ├── run.py                      # 启动脚本
-├── weread-bot.py               # 原始的命令行版本
 ├── config.yaml                 # 配置文件
 ├── requirements.txt            # Python 依赖
 ├── templates/                  # HTML 模板
