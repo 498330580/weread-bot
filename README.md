@@ -103,14 +103,10 @@ python app.py
 
 ### 方式三：Docker部署
 
+详见 [部署方式](#部署方式) 章节。
+
+快速命令：
 ```bash
-# 构建镜像
-docker build -t weread-bot-web .
-
-# 运行容器
-docker run -d -p 5000:5000 weread-bot-web
-
-# 使用Docker Compose
 docker-compose up -d
 ```
 
