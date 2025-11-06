@@ -1,7 +1,7 @@
 # WeRead Bot: 微信读书自动阅读机器人
 
-[![Auto Reading Bot](https://img.shields.io/github/actions/workflow/status/498330580/weread-bot/auto-reading.yml?style=flat-square&label=Auto%20Reading)](https://github.com/498330580/weread-bot/actions/workflows/auto-reading.yml)
-[![Docker Tags](https://img.shields.io/docker/v/498330580/weread-bot?style=flat-square&label=docker%20image)](https://hub.docker.com/r/498330580/weread-bot/)
+[![Auto Reading Bot](https://img.shields.io/github/actions/workflow/status/498330580/weread-bot/docker-build.yml?style=flat-square&label=Auto%20Reading)](https://github.com/498330580/weread-bot/actions/workflows/auto-reading.yml)
+[![Docker Automated build](https://img.shields.io/docker/automated/498330580/weread-bot?style=flat-square)](https://hub.docker.com/r/498330580/weread-bot/)
 [![Commit activity](https://img.shields.io/github/commit-activity/m/498330580/weread-bot?style=flat-square)](https://hub.docker.com/r/498330580/weread-bot/)
 [![Python](https://img.shields.io/badge/python-3.10+-blue?style=flat-square)](https://www.python.org/)
 [![GitHub license](https://img.shields.io/github/license/498330580/weread-bot?style=flat-square)](https://github.com/498330580/weread-bot/blob/main/LICENSE)
