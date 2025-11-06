@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置编辑 - WeRead Bot</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <h1 class="text-2xl font-bold text-indigo-600">⚙️ 配置编辑</h1>
+                <div class="flex items-center space-x-6">
+                    <a href="/" class="text-gray-600 hover:text-gray-900">🏛️ 主页</a>
+                    <a href="/dashboard" class="text-gray-600 hover:text-gray-900">📊 仪表板</a>
+                    <a href="https://weread.yaoling.cc" target="_blank" class="text-gray-600 hover:text-gray-900" title="项目文档"><i class="fab fa-wikipedia-w"></i> 文档</a>
+                    <a href="https://github.com/498330580/weread-bot" target="_blank" class="text-gray-600 hover:text-gray-900" title="GitHub项目"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="https://hub.docker.com/r/498330580/weread-bot" target="_blank" class="text-gray-600 hover:text-gray-900" title="Docker Hub"><i class="fab fa-docker"></i> Docker</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900">← 返回</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Quick Access Buttons -->
+        <div class="mb-6 flex gap-2">
+            <button onclick="toggleEditor('hide')" class="px-4 py-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 text-sm font-medium">
+                🌈 会话框模式
+            </button>
+            <button onclick="toggleEditor('show')" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm font-medium">
+                📄 代码模式
+            </button>
+        </div>
+
+        <!-- Form Mode (Default) -->
+        <div id="formModeContainer" class="block">
+            <!-- Tab Navigation -->
+            <div class="mb-8 bg-white rounded-lg shadow border-b">
+                <div class="flex flex-wrap">
+                    <button onclick="switchTab('basic')" id="tab-basic" class="px-6 py-4 border-b-2 border-indigo-600 text-indigo-600 font-medium hover:bg-gray-50">
+                        ⚙️ 基础配置
+                    </button>
+                    <button onclick="switchTab('reading')" id="tab-reading" class="px-6 py-4 border-b-2 border-transparent text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50">
+                        📖 阅读配置
+                    </button>
+                    <button onclick="switchTab('network')" id="tab-network" class="px-6 py-4 border-b-2 border-transparent text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50">
+                        🌐 网络配置
+                    </button>
+                    <button onclick="switchTab('notification')" id="tab-notification" class="px-6 py-4 border-b-2 border-transparent text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50">
+                        🔔 通知配置
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <!-- Application Configuration -->
+                <div id="content-basic" class="space-y-6">
+                    <div class="border-b pb-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">📱 应用配置</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">启动模式 <span class="text-red-500">*</span></label>
+                                <select id="startupMode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="immediate">🚀 立即执行 - 启动后立即开始阅读</option>
+                                    <option value="scheduled">⏰ 定时执行 - 按照Cron表达式定时运行</option>
+                                    <option value="daemon">🔄 守护进程 - 循环阅读，会话之间有间隔</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">选择程序执行的工作模式</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">启动延迟（秒） <span class="text-red-500">*</span></label>
+                                <input type="text" id="startupDelay" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="如：60-300" value="60-300">
+                                <p class="text-xs text-gray-500 mt-1">支持范围格式，防止被识别。建议尽量设置大一些</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">📄 CURL 配置</h3>
+                        <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+                            <p class="text-sm text-blue-900">💡 选择单用户或多用户模式。多用户模式优先级更高</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="border rounded p-4 bg-gray-50">
+                                <label class="flex items-center mb-3">
+                                    <input type="radio" name="curlMode" value="single" class="mr-2" checked>
+                                    <span class="text-sm font-medium text-gray-700">单用户模式</span>
+                                </label>
+                                <div class="ml-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">CURL 文件路径</label>
+                                    <input type="text" id="curlFilePath" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" placeholder="curl_command.txt" readonly>
+                                    <p class="text-xs text-gray-500 mt-2">单个 CURL bash 命令文件路径</p>
+                                    <button type="button" onclick="openCurlEditor()" class="mt-3 px-4 py-2 bg-blue-50 text-blue-600 text-sm rounded hover:bg-blue-100">📝 编辑 curl_command.txt</button>
+                                </div>
+                            </div>
+                            <div class="border rounded p-4 bg-gray-50">
+                                <label class="flex items-center mb-3">
+                                    <input type="radio" name="curlMode" value="multi" class="mr-2">
+                                    <span class="text-sm font-medium text-gray-700">多用户模式</span>
+                                </label>
+                                <div class="ml-6 space-y-3" id="multiUserConfig" style="display: none;">
+                                    <div class="text-xs text-gray-600 mb-3">添加多个用户的 CURL 配置</div>
+                                    <div id="usersList" class="space-y-3">
+                                        <!-- 用户列表将动态生成 -->
+                                    </div>
+                                    <button type="button" onclick="addUserConfig()" class="px-3 py-2 bg-indigo-50 text-indigo-600 text-sm rounded hover:bg-indigo-100">+ 添加用户</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reading Configuration -->
+                <div id="content-reading" style="display:none;" class="space-y-6">
+                    <div class="border-b pb-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">📖 基础阅读配置</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">阅读模式 <span class="text-red-500">*</span></label>
+                                <select id="readingMode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="smart_random">🧠 智能随机 - 平衡的书籍和章节切换</option>
+                                    <option value="sequential">📚 顺序阅读 - 按章节顺序连续阅读</option>
+                                    <option value="pure_random">🎲 纯随机 - 完全随机选择书籍和章节</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">智能随机模式最符合人类阅读习惯</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">目标阅读时长（分钟） <span class="text-red-500">*</span></label>
+                                <input type="text" id="targetDuration" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="45-90" value="45-90">
+                                <p class="text-xs text-gray-500 mt-1">支持范围格式。建议45-90分钟，过长不符合阅读习惯</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">阅读间隔（秒） <span class="text-red-500">*</span></label>
+                                <input type="text" id="readingInterval" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="30-48" value="30-48">
+                                <p class="text-xs text-gray-500 mt-1">每次阅读请求之间的延迟</p>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="useCurlDataFirst" class="mr-2 w-4 h-4 text-indigo-600 rounded" checked>
+                                <label class="text-sm text-gray-700">✅ 优先使用CURL数据</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="fallbackToConfig" class="mr-2 w-4 h-4 text-indigo-600 rounded" checked>
+                                <label class="text-sm text-gray-700">✅ CURL数据失效时回退到配置</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-b pb-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">🧠 智能随机模式</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">书籍连续性 (0-1)</label>
+                                <input type="range" id="bookContinuity" class="w-full" min="0" max="1" step="0.1" value="0.8">
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>倾向换书</span>
+                                    <span id="bookContinuityValue">0.8</span>
+                                    <span>倾向继续</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">数值越高越倾向于继续阅读当前书籍</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">章节连续性 (0-1)</label>
+                                <input type="range" id="chapterContinuity" class="w-full" min="0" max="1" step="0.1" value="0.7">
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>随机章节</span>
+                                    <span id="chapterContinuityValue">0.7</span>
+                                    <span>顺序章节</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">数值越高越倾向于顺序阅读章节</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">换书冷却时间（秒）</label>
+                                <input type="number" id="bookSwitchCooldown" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" value="3600">
+                                <p class="text-xs text-gray-500 mt-1">换书的最小间隔时间</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">📚 书籍配置</h3>
+                        <div class="text-xs text-gray-600 mb-3">添加要阅读的书籍及其章节</div>
+                        <div id="booksList" class="space-y-4">
+                            <!-- 书籍列表将动态生成 -->
+                        </div>
+                        <button type="button" onclick="addBook()" class="mt-4 px-4 py-2 bg-indigo-50 text-indigo-600 text-sm rounded hover:bg-indigo-100">+ 添加书籍</button>
+                    </div>
+                </div>
+
+                <!-- Human Simulation & Network Configuration -->
+                <div id="content-network" style="display:none;" class="space-y-6">
+                    <div class="border-b pb-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">🎭 人类行为模拟</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="humanSimulationEnabled" class="mr-2 w-4 h-4 text-indigo-600 rounded" checked>
+                                <label class="text-sm text-gray-700">✅ 启用行为模拟</label>
+                            </div>
+                            <div class="ml-6 space-y-4" id="humanSimulationConfig">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="readingSpeedVariation" class="mr-2 w-4 h-4 text-indigo-600 rounded" checked>
+                                    <label class="text-sm text-gray-700">✅ 阅读速度变化</label>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">中途休息概率 (0-1)</label>
+                                    <input type="range" id="breakProbability" class="w-full" min="0" max="1" step="0.05" value="0.1">
+                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>不休息</span>
+                                        <span id="breakProbabilityValue">0.1</span>
+                                        <span>经常休息</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">休息时长（秒）</label>
+                                    <input type="text" id="breakDuration" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="5-20" value="5-20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">🌐 网络配置</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">请求超时（秒）</label>
+                                <input type="number" id="networkTimeout" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" value="30">
+                                <p class="text-xs text-gray-500 mt-1">单个请求的超时时间</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">重试次数</label>
+                                <input type="number" id="retryTimes" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" value="3">
+                                <p class="text-xs text-gray-500 mt-1">请求失败时的重试次数</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">重试延迟（秒）</label>
+                                <input type="text" id="retryDelay" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="5-15" value="5-15">
+                                <p class="text-xs text-gray-500 mt-1">支持范围格式，重试前的延迟时间</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">请求频率限制（请求/分钟）</label>
+                                <input type="number" id="rateLimit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" value="10">
+                                <p class="text-xs text-gray-500 mt-1">防止请求过于频繁</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification & Schedule Configuration -->
+                <div id="content-notification" style="display:none;" class="space-y-6">
+                    <div class="border-b pb-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">🔔 通知配置</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="notificationEnabled" class="mr-2 w-4 h-4 text-indigo-600 rounded" checked>
+                                <label class="text-sm text-gray-700">✅ 启用通知</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="includeStatistics" class="mr-2 w-4 h-4 text-indigo-600 rounded" checked>
+                                <label class="text-sm text-gray-700">✅ 包含详细统计</label>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600 mb-3">配置通知通道（支持多个通道同时使用）</p>
+                                <div id="notificationChannels" class="space-y-3">
+                                    <!-- 通知通道将动态生成 -->
+                                </div>
+                                <button type="button" onclick="addNotificationChannel()" class="mt-4 px-4 py-2 bg-indigo-50 text-indigo-600 text-sm rounded hover:bg-indigo-100">+ 添加通知通道</button>
+                            </div>
+                            <div class="pt-4 border-t">
+                                <button type="button" onclick="testNotification()" class="px-4 py-2 bg-green-50 text-green-600 text-sm rounded hover:bg-green-100 font-medium">🧪 测试通知</button>
+                                <p class="text-xs text-gray-500 mt-2">点击按钮向已启用的通知通道发送测试消息</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-b pb-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">⏰ 定时任务配置</h3>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded p-4 mb-4">
+                            <p class="text-sm text-yellow-900">⚠️ 仅在启动模式为"定时执行"时生效</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="scheduleEnabled" class="mr-2 w-4 h-4 text-indigo-600 rounded">
+                                <label class="text-sm text-gray-700">✅ 启用定时任务</label>
+                            </div>
+                            <div class="ml-6 space-y-4" id="scheduleConfig" style="display: none;">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cron 表达式</label>
+                                    <input type="text" id="cronExpression" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="0 */2 * * *" value="0 */2 * * *">
+                                    <p class="text-xs text-gray-500 mt-2">示例：</p>
+                                    <ul class="text-xs text-gray-500 list-disc list-inside mt-1 space-y-1">
+                                        <li>"0 */2 * * *" - 每2小时执行一次</li>
+                                        <li>"30 9 * * *" - 每天9:30执行</li>
+                                        <li>"0 8,12,18 * * *" - 每天8:00、12:00、18:00执行</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">时区</label>
+                                    <select id="timezone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                        <option value="Asia/Shanghai">Asia/Shanghai</option>
+                                        <option value="UTC">UTC</option>
+                                        <option value="Asia/Hong_Kong">Asia/Hong_Kong</option>
+                                        <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                        <option value="America/New_York">America/New_York</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">🔄 守护进程配置</h3>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded p-4 mb-4">
+                            <p class="text-sm text-yellow-900">⚠️ 仅在启动模式为"守护进程"时生效</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="daemonEnabled" class="mr-2 w-4 h-4 text-indigo-600 rounded">
+                                <label class="text-sm text-gray-700">✅ 启用守护进程</label>
+                            </div>
+                            <div class="ml-6 space-y-4" id="daemonConfig" style="display: none;">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">会话间隔（分钟）</label>
+                                    <input type="text" id="sessionInterval" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="120-180" value="120-180">
+                                    <p class="text-xs text-gray-500 mt-1">每个阅读会话之间的休息时间</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">每日最大会话数</label>
+                                    <input type="number" id="maxDailySessions" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" value="12">
+                                    <p class="text-xs text-gray-500 mt-1">每天最多执行的阅读会话次数</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Editor Mode -->
+        <div id="codeModeContainer" style="display: none;">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Editor Panel -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">📄 配置文件编辑</h2>
+                    <textarea id="configEditor" class="w-full h-96 p-4 border border-gray-300 rounded-lg font-mono text-sm"
+                        placeholder="YAML 配置内容"></textarea>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="saveConfig()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            💾 保存
+                        </button>
+                        <button onclick="downloadConfig()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            ⬇️ 下载
+                        </button>
+                        <button onclick="resetConfig()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            ↻ 重置
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">🔍 配置预览</h2>
+                    <div id="configPreview" class="bg-gray-50 rounded p-4 font-mono text-sm max-h-96 overflow-y-auto">
+                        <p class="text-gray-600">配置预览将在此显示...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CURL 编辑对话框 -->
+        <div id="curlEditorModal" style="display: none;" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 md:w-3/4 lg:w-2/3 max-h-96 flex flex-col">
+                <div class="flex justify-between items-center mb-4 border-b pb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">📝 编辑 CURL 命令</h2>
+                    <button type="button" onclick="closeCurlEditor()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                </div>
+                
+                <textarea id="curlContent" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm mb-4 resize-none" 
+                    placeholder="输入CURL命令..."></textarea>
+                
+                <div class="flex gap-2 justify-end">
+                    <button type="button" onclick="closeCurlEditor()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        ✗ 取消
+                    </button>
+                    <button type="button" onclick="saveCurlContent()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                        ✓ 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换编辑器视图
+        function toggleEditor(mode) {
+            document.getElementById('formModeContainer').style.display = mode === 'hide' ? 'none' : 'block';
+            document.getElementById('codeModeContainer').style.display = mode === 'show' ? 'block' : 'none';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+            setupEventListeners();
+        });
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 滑块实时显示
+            ['bookContinuity', 'chapterContinuity', 'breakProbability'].forEach(id => {
+                const elem = document.getElementById(id);
+                if (elem) {
+                    elem.addEventListener('input', function() {
+                        document.getElementById(id + 'Value').textContent = this.value;
+                    });
+                }
+            });
+
+            // CURL模式切换
+            document.querySelectorAll('input[name="curlMode"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('multiUserConfig').style.display = 
+                        this.value === 'multi' ? 'block' : 'none';
+                });
+            });
+
+            // 定时任务启用
+            document.getElementById('scheduleEnabled')?.addEventListener('change', function() {
+                document.getElementById('scheduleConfig').style.display = 
+                    this.checked ? 'block' : 'none';
+            });
+
+            // 守护进程启用
+            document.getElementById('daemonEnabled')?.addEventListener('change', function() {
+                document.getElementById('daemonConfig').style.display = 
+                    this.checked ? 'block' : 'none';
+            });
+
+            // 人类行为模拟启用
+            document.getElementById('humanSimulationEnabled')?.addEventListener('change', function() {
+                document.getElementById('humanSimulationConfig').style.display = 
+                    this.checked ? 'block' : 'none';
+            });
+
+            // 表单变化时更新YAML编辑器
+            document.querySelectorAll('input, select, textarea').forEach(elem => {
+                elem.addEventListener('change', () => {
+                    const config = collectFormConfig();
+                    document.getElementById('configEditor').value = jsyaml.dump(config);
+                    updatePreview();
+                });
+            });
+
+            // 编辑器输入时更新预览
+            document.getElementById('configEditor').addEventListener('input', updatePreview);
+        }
+
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const response = await axios.get('/api/config');
+                const config = response.data.data;
+                
+                fillForm(config);
+                document.getElementById('configEditor').value = jsyaml.dump(config);
+                updatePreview();
+            } catch (error) {
+                console.error('加载配置失败:', error);
+                alert('加载配置失败: ' + error.message);
+            }
+        }
+
+        // 填充表单
+        function fillForm(config) {
+            try {
+                // 基础配置
+                document.getElementById('startupMode').value = config.app?.startup_mode || 'immediate';
+                document.getElementById('startupDelay').value = config.app?.startup_delay || '60-300';
+
+                // CURL配置
+                const hasUsers = config.curl_config?.users && config.curl_config.users.length > 0;
+                document.querySelector('input[name="curlMode"][value="' + (hasUsers ? 'multi' : 'single') + '"]').checked = true;
+                document.getElementById('curlFilePath').value = config.curl_config?.file_path || '';
+                if (hasUsers) {
+                    document.getElementById('multiUserConfig').style.display = 'block';
+                    renderUsersList(config.curl_config.users);
+                }
+
+                // 阅读配置
+                document.getElementById('readingMode').value = config.reading?.mode || 'smart_random';
+                document.getElementById('targetDuration').value = config.reading?.target_duration || '45-90';
+                document.getElementById('readingInterval').value = config.reading?.reading_interval || '30-48';
+                document.getElementById('useCurlDataFirst').checked = config.reading?.use_curl_data_first !== false;
+                document.getElementById('fallbackToConfig').checked = config.reading?.fallback_to_config !== false;
+
+                // 智能随机配置
+                const sr = config.reading?.smart_random || {};
+                document.getElementById('bookContinuity').value = sr.book_continuity || 0.8;
+                document.getElementById('bookContinuityValue').textContent = sr.book_continuity || 0.8;
+                document.getElementById('chapterContinuity').value = sr.chapter_continuity || 0.7;
+                document.getElementById('chapterContinuityValue').textContent = sr.chapter_continuity || 0.7;
+                document.getElementById('bookSwitchCooldown').value = sr.book_switch_cooldown || 3600;
+
+                // 书籍列表
+                renderBooksList(config.reading?.books || []);
+
+                // 人类行为模拟
+                const hs = config.human_simulation || {};
+                document.getElementById('humanSimulationEnabled').checked = hs.enabled !== false;
+                document.getElementById('humanSimulationConfig').style.display = hs.enabled !== false ? 'block' : 'none';
+                document.getElementById('readingSpeedVariation').checked = hs.reading_speed_variation !== false;
+                document.getElementById('breakProbability').value = hs.break_probability || 0.1;
+                document.getElementById('breakProbabilityValue').textContent = hs.break_probability || 0.1;
+                document.getElementById('breakDuration').value = hs.break_duration || '5-20';
+
+                // 网络配置
+                document.getElementById('networkTimeout').value = config.network?.timeout || 30;
+                document.getElementById('retryTimes').value = config.network?.retry_times || 3;
+                document.getElementById('retryDelay').value = config.network?.retry_delay || '5-15';
+                document.getElementById('rateLimit').value = config.network?.rate_limit || 10;
+
+                // 通知配置
+                document.getElementById('notificationEnabled').checked = config.notification?.enabled !== false;
+                document.getElementById('includeStatistics').checked = config.notification?.include_statistics !== false;
+                renderNotificationChannels(config.notification?.channels || []);
+
+                // 定时任务配置
+                const sch = config.schedule || {};
+                document.getElementById('scheduleEnabled').checked = sch.enabled || false;
+                document.getElementById('scheduleConfig').style.display = sch.enabled ? 'block' : 'none';
+                document.getElementById('cronExpression').value = sch.cron_expression || '0 */2 * * *';
+                document.getElementById('timezone').value = sch.timezone || 'Asia/Shanghai';
+
+                // 守护进程配置
+                const dm = config.daemon || {};
+                document.getElementById('daemonEnabled').checked = dm.enabled || false;
+                document.getElementById('daemonConfig').style.display = dm.enabled ? 'block' : 'none';
+                document.getElementById('sessionInterval').value = dm.session_interval || '120-180';
+                document.getElementById('maxDailySessions').value = dm.max_daily_sessions || 12;
+            } catch (error) {
+                console.error('填充表单失败:', error);
+            }
+        }
+
+        // 渲染用户列表
+        function renderUsersList(users) {
+            const list = document.getElementById('usersList');
+            list.innerHTML = '';
+            users.forEach((user, index) => {
+                const div = document.createElement('div');
+                div.className = 'border rounded p-3 bg-white';
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <input type="text" value="${user.name}" placeholder="用户名" class="flex-1 px-2 py-1 border rounded text-sm mr-2" data-user-name="${index}">
+                        <button type="button" onclick="removeUser(${index})" class="px-2 py-1 bg-red-100 text-red-600 text-sm rounded hover:bg-red-200">删除</button>
+                    </div>
+                    <input type="text" value="${user.file_path}" placeholder="文件路径" class="w-full px-2 py-1 border rounded text-sm" data-user-file="${index}">
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // 添加用户
+        function addUserConfig() {
+            const list = document.getElementById('usersList');
+            const index = list.children.length;
+            const div = document.createElement('div');
+            div.className = 'border rounded p-3 bg-white';
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <input type="text" placeholder="新用户" class="flex-1 px-2 py-1 border rounded text-sm mr-2" data-user-name="${index}">
+                    <button type="button" onclick="removeUser(${index})" class="px-2 py-1 bg-red-100 text-red-600 text-sm rounded hover:bg-red-200">删除</button>
+                </div>
+                <input type="text" placeholder="curl文件路径" class="w-full px-2 py-1 border rounded text-sm" data-user-file="${index}">
+            `;
+            list.appendChild(div);
+        }
+
+        function removeUser(index) {
+            document.querySelectorAll('input[data-user-name="' + index + '"]')[0]?.parentElement.parentElement.remove();
+        }
+
+        // 渲染书籍列表
+        function renderBooksList(books) {
+            const list = document.getElementById('booksList');
+            list.innerHTML = '';
+            books.forEach((book, index) => {
+                const div = document.createElement('div');
+                div.className = 'border rounded p-4 bg-gray-50';
+                div.innerHTML = `
+                    <div class="flex justify-between mb-3">
+                        <input type="text" value="${book.name}" placeholder="书籍名称" class="flex-1 px-3 py-2 border rounded text-sm mr-2" data-book-name="${index}">
+                        <button type="button" onclick="removeBook(${index})" class="px-3 py-2 bg-red-100 text-red-600 text-sm rounded hover:bg-red-200">删除</button>
+                    </div>
+                    <input type="text" value="${book.book_id}" placeholder="书籍ID" class="w-full px-3 py-2 border rounded text-sm mb-3" data-book-id="${index}">
+                    <div class="text-xs text-gray-600">章节（用逗号分隔章节ID）</div>
+                    <textarea class="w-full px-3 py-2 border rounded text-sm mt-1" rows="3" data-book-chapters="${index}" placeholder="chapter_id1, chapter_id2, ..."></textarea>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addBook() {
+            const list = document.getElementById('booksList');
+            const index = list.children.length;
+            const div = document.createElement('div');
+            div.className = 'border rounded p-4 bg-gray-50';
+            div.innerHTML = `
+                <div class="flex justify-between mb-3">
+                    <input type="text" placeholder="新书籍" class="flex-1 px-3 py-2 border rounded text-sm mr-2" data-book-name="${index}">
+                    <button type="button" onclick="removeBook(${index})" class="px-3 py-2 bg-red-100 text-red-600 text-sm rounded hover:bg-red-200">删除</button>
+                </div>
+                <input type="text" placeholder="书籍ID" class="w-full px-3 py-2 border rounded text-sm mb-3" data-book-id="${index}">
+                <div class="text-xs text-gray-600">章节（用逗号分隔章节ID）</div>
+                <textarea class="w-full px-3 py-2 border rounded text-sm mt-1" rows="3" data-book-chapters="${index}" placeholder="chapter_id1, chapter_id2, ..."></textarea>
+            `;
+            list.appendChild(div);
+        }
+
+        function removeBook(index) {
+            document.querySelectorAll('input[data-book-name="' + index + '"]')[0]?.parentElement.parentElement.remove();
+        }
+
+        // 渲染通知通道
+        function renderNotificationChannels(channels) {
+            const list = document.getElementById('notificationChannels');
+            list.innerHTML = '';
+            
+            // 通知通道配置定义
+            const channelConfigs = {
+                pushplus: {
+                    label: 'PushPlus',
+                    fields: [{ name: 'token', label: 'Token', type: 'text', placeholder: '你的PushPlus Token' }]
+                },
+                telegram: {
+                    label: 'Telegram',
+                    fields: [
+                        { name: 'bot_token', label: 'Bot Token', type: 'text', placeholder: '你的Telegram Bot Token' },
+                        { name: 'chat_id', label: 'Chat ID', type: 'text', placeholder: '你的Telegram Chat ID' }
+                    ]
+                },
+                wxpusher: {
+                    label: 'WxPusher',
+                    fields: [{ name: 'spt', label: 'SPT', type: 'text', placeholder: '你的WxPusher SPT' }]
+                },
+                apprise: {
+                    label: 'Apprise',
+                    fields: [{ name: 'url', label: 'Apprise URL', type: 'text', placeholder: 'discord://webhook_id/webhook_token' }]
+                },
+                bark: {
+                    label: 'Bark',
+                    fields: [
+                        { name: 'server', label: '服务器地址', type: 'text', placeholder: 'https://api.day.app', value: 'https://api.day.app' },
+                        { name: 'device_key', label: '设备Key', type: 'text', placeholder: '你的Bark设备Key' },
+                        { name: 'sound', label: '通知音效', type: 'text', placeholder: 'default' }
+                    ]
+                },
+                ntfy: {
+                    label: 'Ntfy',
+                    fields: [
+                        { name: 'server', label: '服务器地址', type: 'text', placeholder: 'https://ntfy.sh', value: 'https://ntfy.sh' },
+                        { name: 'topic', label: '主题名称', type: 'text', placeholder: '你的Ntfy主题' },
+                        { name: 'token', label: '访问令牌（可选）', type: 'text', placeholder: '用于私有主题' }
+                    ]
+                },
+                feishu: {
+                    label: '飞书',
+                    fields: [{ name: 'webhook_url', label: 'Webhook URL', type: 'text', placeholder: 'https://open.feishu.cn/open-apis/bot/v2/hook/...' }]
+                },
+                wework: {
+                    label: '企业微信',
+                    fields: [{ name: 'webhook_url', label: 'Webhook URL', type: 'text', placeholder: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=...' }]
+                },
+                dingtalk: {
+                    label: '钉钉',
+                    fields: [{ name: 'webhook_url', label: 'Webhook URL', type: 'text', placeholder: 'https://oapi.dingtalk.com/robot/send?access_token=...' }]
+                },
+                gotify: {
+                    label: 'Gotify',
+                    fields: [
+                        { name: 'server', label: '服务器地址', type: 'text', placeholder: 'https://gotify.example.com' },
+                        { name: 'token', label: '应用令牌', type: 'text', placeholder: '你的Gotify Token' },
+                        { name: 'priority', label: '优先级（1-10）', type: 'number', placeholder: '5', value: '5' }
+                    ]
+                },
+                serverchan3: {
+                    label: 'Server酱³',
+                    fields: [
+                        { name: 'uid', label: 'UID', type: 'text', placeholder: '你的Server酱³ UID' },
+                        { name: 'sendkey', label: 'SendKey', type: 'text', placeholder: '你的Server酱³ SendKey' },
+                        { name: 'tags', label: '标签（可选）', type: 'text', placeholder: '阅读报告' }
+                    ]
+                },
+                pushdeer: {
+                    label: 'PushDeer',
+                    fields: [{ name: 'pushkey', label: 'PushKey', type: 'text', placeholder: '你的PushDeer PushKey' }]
+                }
+            };
+            
+            Object.keys(channelConfigs).forEach(name => {
+                const channelConfig = channelConfigs[name];
+                const channel = channels.find(c => c.name === name) || { name, enabled: false, config: {} };
+                const div = document.createElement('div');
+                div.className = 'border rounded p-4 bg-gray-50 mb-4';
+                
+                let html = `
+                    <label class="flex items-center mb-4">
+                        <input type="checkbox" ${channel.enabled ? 'checked' : ''} class="mr-2 w-4 h-4" data-channel="${name}">
+                        <span class="text-sm font-medium text-gray-700">${channelConfig.label}</span>
+                    </label>
+                    <div class="ml-6 space-y-3" data-channel-fields="${name}" style="display: ${channel.enabled ? 'block' : 'none'};">
+                `;
+                
+                channelConfig.fields.forEach(field => {
+                    const value = channel.config[field.name] || field.value || '';
+                    html += `
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">${field.label}</label>
+                            <input type="${field.type}" value="${value}" placeholder="${field.placeholder}" class="w-full px-2 py-1 border rounded text-sm" data-channel-config="${name}" data-config-field="${field.name}">
+                        </div>
+                    `;
+                });
+                
+                html += `
+                    </div>
+                `;
+                
+                div.innerHTML = html;
+                list.appendChild(div);
+                
+                // 添加通道启用/禁用事件监听
+                const checkbox = div.querySelector(`input[data-channel="${name}"]`);
+                const fieldsDiv = div.querySelector(`[data-channel-fields="${name}"]`);
+                checkbox.addEventListener('change', function() {
+                    fieldsDiv.style.display = this.checked ? 'block' : 'none';
+                });
+            });
+        }
+
+        function addNotificationChannel() {
+            // 通知通道通过复选框管理
+            alert('请在通知配置中启用相应的通知通道');
+        }
+
+        // 从表单收集配置
+        function collectFormConfig() {
+            const config = {
+                app: {
+                    startup_mode: document.getElementById('startupMode').value || 'immediate',
+                    startup_delay: document.getElementById('startupDelay').value || '60-300'
+                },
+                curl_config: {
+                    file_path: document.getElementById('curlFilePath').value || 'curl_command.txt',
+                    users: []
+                },
+                reading: {
+                    mode: document.getElementById('readingMode').value || 'smart_random',
+                    target_duration: document.getElementById('targetDuration').value || '45-90',
+                    reading_interval: document.getElementById('readingInterval').value || '30-48',
+                    use_curl_data_first: document.getElementById('useCurlDataFirst').checked,
+                    fallback_to_config: document.getElementById('fallbackToConfig').checked,
+                    books: [],
+                    smart_random: {
+                        book_continuity: parseFloat(document.getElementById('bookContinuity').value) || 0.8,
+                        chapter_continuity: parseFloat(document.getElementById('chapterContinuity').value) || 0.7,
+                        book_switch_cooldown: parseInt(document.getElementById('bookSwitchCooldown').value) || 3600
+                    }
+                },
+                human_simulation: {
+                    enabled: document.getElementById('humanSimulationEnabled').checked,
+                    reading_speed_variation: document.getElementById('readingSpeedVariation').checked,
+                    break_probability: parseFloat(document.getElementById('breakProbability').value) || 0.1,
+                    break_duration: document.getElementById('breakDuration').value || '5-20'
+                },
+                network: {
+                    timeout: parseInt(document.getElementById('networkTimeout').value) || 30,
+                    retry_times: parseInt(document.getElementById('retryTimes').value) || 3,
+                    retry_delay: document.getElementById('retryDelay').value || '5-15',
+                    rate_limit: parseInt(document.getElementById('rateLimit').value) || 10
+                },
+                notification: {
+                    enabled: document.getElementById('notificationEnabled').checked,
+                    include_statistics: document.getElementById('includeStatistics').checked,
+                    channels: (() => {
+                        const channels = [];
+                        document.querySelectorAll('input[data-channel]').forEach(checkbox => {
+                            const channelName = checkbox.getAttribute('data-channel');
+                            const enabled = checkbox.checked;
+                            const config = {};
+                            
+                            // 收集该通道的所有配置字段
+                            document.querySelectorAll(`input[data-channel-config="${channelName}"]`).forEach(input => {
+                                const fieldName = input.getAttribute('data-config-field');
+                                const value = input.value.trim();
+                                if (value) {
+                                    config[fieldName] = value;
+                                }
+                            });
+                            
+                            channels.push({
+                                name: channelName,
+                                enabled: enabled,
+                                config: config
+                            });
+                        });
+                        return channels;
+                    })()
+                },
+                schedule: {
+                    enabled: document.getElementById('scheduleEnabled').checked,
+                    cron_expression: document.getElementById('cronExpression').value || '0 */2 * * *',
+                    timezone: document.getElementById('timezone').value || 'Asia/Shanghai'
+                },
+                daemon: {
+                    enabled: document.getElementById('daemonEnabled').checked,
+                    session_interval: document.getElementById('sessionInterval').value || '120-180',
+                    max_daily_sessions: parseInt(document.getElementById('maxDailySessions').value) || 12
+                }
+            };
+
+            return config;
+        }
+
+        // 更新预览
+        function updatePreview() {
+            try {
+                const editorContent = document.getElementById('configEditor').value;
+                const config = jsyaml.load(editorContent);
+                
+                const preview = document.getElementById('configPreview');
+                preview.textContent = jsyaml.dump(config, { lineWidth: 50 });
+            } catch (error) {
+                const preview = document.getElementById('configPreview');
+                preview.innerHTML = '<span class="text-red-600">YAML格式错误: ' + error.message + '</span>';
+            }
+        }
+
+        // 保存配置
+        async function saveConfig() {
+            try {
+                const editorContent = document.getElementById('configEditor').value;
+                const config = jsyaml.load(editorContent);
+                
+                const response = await axios.post('/api/config', config);
+                alert('✅ 配置已保存');
+                loadConfig();
+            } catch (error) {
+                alert('❌ 保存失败: ' + error.message);
+            }
+        }
+
+        // 下载配置
+        function downloadConfig() {
+            window.location.href = '/api/export/config';
+        }
+
+        // 重置配置
+        function resetConfig() {
+            if (!confirm('确定要重置为默认配置吗？')) return;
+            loadConfig();
+        }
+
+        // 标签页切换
+        function switchTab(tabName) {
+            document.querySelectorAll('[id^="content-"]').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('border-indigo-600', 'text-indigo-600');
+                el.classList.add('border-transparent', 'text-gray-600');
+            });
+
+            document.getElementById('content-' + tabName).style.display = 'block';
+            document.getElementById('tab-' + tabName).classList.add('border-indigo-600', 'text-indigo-600');
+            document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-600');
+        }
+
+        // 打开CURL编辑对话框
+        function openCurlEditor() {
+            document.getElementById('curlEditorModal').style.display = 'flex';
+            // 尝试加载现有的curl_command.txt内容
+            loadCurlContent();
+        }
+
+        // 关闭CURL编辑对话框
+        function closeCurlEditor() {
+            document.getElementById('curlEditorModal').style.display = 'none';
+        }
+
+        // 加载CURL文件内容
+        async function loadCurlContent() {
+            try {
+                const response = await axios.get('/api/curl/load');
+                if (response.data.success) {
+                    document.getElementById('curlContent').value = response.data.content || '';
+                }
+            } catch (error) {
+                console.error('加载CURL内容失败:', error);
+                document.getElementById('curlContent').value = '';
+            }
+        }
+
+        // 保存CURL内容
+        async function saveCurlContent() {
+            try {
+                const content = document.getElementById('curlContent').value;
+                const filename = document.getElementById('curlFilePath').value || 'curl_command.txt';
+                
+                const response = await axios.post('/api/curl/save', {
+                    content: content,
+                    filename: filename
+                });
+
+                if (response.data.success) {
+                    alert('✅ ' + response.data.message);
+                    closeCurlEditor();
+                } else {
+                    alert('❌ 保存失败: ' + response.data.error);
+                }
+            } catch (error) {
+                alert('❌ 保存失败: ' + error.message);
+            }
+        }
+
+        // 点击对话框外关闭
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('curlEditorModal');
+            if (event.target === modal) {
+                closeCurlEditor();
+            }
+        });
+
+        // 测试通知
+        async function testNotification() {
+            let btn;
+            try {
+                // 收集当前已启用的通知通道
+                const enabledChannels = [];
+                document.querySelectorAll('input[data-channel]:checked').forEach(checkbox => {
+                    const channelName = checkbox.getAttribute('data-channel');
+                    const configValue = document.querySelector(`input[data-channel-config="${channelName}"]`)?.value || '';
+                    if (configValue) {
+                        enabledChannels.push({
+                            name: channelName,
+                            config: { token: configValue }
+                        });
+                    }
+                });
+
+                if (enabledChannels.length === 0) {
+                    alert('⚠️ 请先配置至少一个通知通道');
+                    return;
+                }
+
+                // 会话表示中
+                btn = event.target || document.querySelector('button[onclick*="testNotification"]');
+                const originalText = btn?.textContent || '🧪 测试通知';
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = '⚡ 正在发送...';
+                }
+
+                // 调用后端API测试通知
+                const response = await axios.post('/api/notification/test', {
+                    channels: enabledChannels,
+                    title: '正条阻弋 - 测试通知',
+                    content: '🎉 通知配置测试成功！\n\n这是一条测试消息，表明你的通知通道已经正常工作。'
+                });
+
+                if (response.data.success) {
+                    alert('✅ 测试通知已发送！\n\n已成功发送到 ' + enabledChannels.length + ' 个通知通道');
+                } else {
+                    alert('❌ 测试失败: ' + response.data.error);
+                }
+            } catch (error) {
+                console.error('测试通知错误:', error);
+                alert('❌ 测试失败: ' + error.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = '🧪 测试通知';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

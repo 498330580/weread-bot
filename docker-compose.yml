@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  weread-bot:
+    image: 498330580/weread-bot:latest
+    container_name: weread-bot
+    ports:
+      - "5000:5000"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      # 挂载日志目录
+      - ./logs:/app/logs
+      # 挂载配置文件
+      - ./config.yaml:/app/config.yaml:ro
+      # 挂载CURL命令文件（可选）
+      # - ./curl_command.txt:/app/curl_command.txt:ro
+    restart: unless-stopped
+    networks:
+      - weread-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  weread-network:
+    driver: bridge

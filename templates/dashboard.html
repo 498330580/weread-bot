@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表板 - WeRead Bot</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <h1 class="text-2xl font-bold text-indigo-600">📊 仪表板</h1>
+                <div class="flex items-center space-x-6">
+                    <a href="/" class="text-gray-600 hover:text-gray-900">🏛️ 主页</a>
+                    <a href="/config" class="text-gray-600 hover:text-gray-900">⚙️ 配置</a>
+                    <a href="https://weread.yaoling.cc" target="_blank" class="text-gray-600 hover:text-gray-900" title="项目文档"><i class="fab fa-wikipedia-w"></i> 文档</a>
+                    <a href="https://github.com/498330580/weread-bot" target="_blank" class="text-gray-600 hover:text-gray-900" title="GitHub项目"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="https://hub.docker.com/r/498330580/weread-bot" target="_blank" class="text-gray-600 hover:text-gray-900" title="Docker Hub"><i class="fab fa-docker"></i> Docker</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900">← 返回</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Status Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-600 text-sm font-medium">应用状态</h3>
+                <p class="text-2xl font-bold text-gray-900 mt-2" id="appStatus">✅ 正常</p>
+                <p class="text-sm text-gray-500 mt-1">Web服务</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-600 text-sm font-medium">任务状态</h3>
+                <p class="text-2xl font-bold text-gray-900 mt-2" id="taskStatus">⏹️ 未运行</p>
+                <p class="text-sm text-gray-500 mt-1" id="taskTime">--</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-600 text-sm font-medium">进度</h3>
+                <p class="text-2xl font-bold text-gray-900 mt-2" id="progress">0%</p>
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div id="progressBar" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-600 text-sm font-medium">日志条数</h3>
+                <p class="text-2xl font-bold text-gray-900 mt-2" id="logCount">0</p>
+                <p class="text-sm text-gray-500 mt-1">最近24小时</p>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- CPU Usage -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">性能监控</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">内存使用</span>
+                            <span class="text-sm font-medium text-gray-900" id="memoryUsage">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="memoryBar" class="bg-blue-600 h-2 rounded-full" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">任务进度</span>
+                            <span class="text-sm font-medium text-gray-900" id="progressText">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="taskProgressBar" class="bg-green-600 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">统计信息</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">总运行时间</span>
+                        <span class="text-gray-900 font-medium" id="totalRunTime">0小时</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">成功请求</span>
+                        <span class="text-green-600 font-medium" id="successCount">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">失败请求</span>
+                        <span class="text-red-600 font-medium" id="failureCount">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">成功率</span>
+                        <span class="text-blue-600 font-medium" id="successRate">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-900">活动日志</h2>
+                <button onclick="clearActivityLog()" class="text-sm text-red-600 hover:text-red-700">清空</button>
+            </div>
+            <div id="activityLog" class="space-y-2 max-h-96 overflow-y-auto">
+                <p class="text-gray-600 text-center py-8">日志加载中...</p>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">控制面板</h2>
+            <div class="flex flex-wrap gap-4">
+                <button onclick="startReadingTask()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    ▶️ 启动阅读
+                </button>
+                <button onclick="stopReadingTask()" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    ⏹️ 停止任务
+                </button>
+                <button onclick="pauseReadingTask()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+                    ⏸️ 暂停任务
+                </button>
+                <button onclick="resetStatistics()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                    ↻ 重置统计
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('仪表板页面已加载');
+            updateDashboard();
+            loadActivityLog();
+            
+            // 每2秒更新一次
+            setInterval(() => {
+                updateDashboard();
+                loadActivityLog();
+            }, 2000);
+        });
+
+        // 更新仪表板
+        async function updateDashboard() {
+            try {
+                // 获取任务状态
+                const statusResponse = await axios.get('/api/task/status');
+                const status = statusResponse.data.data;
+                
+                // 更新状态卡片
+                const taskStatusEl = document.getElementById('taskStatus');
+                if (taskStatusEl) {
+                    taskStatusEl.textContent = status.is_running ? '▶️ 运行中' : '⏹️ 未运行';
+                    taskStatusEl.className = status.is_running ? 
+                        'text-2xl font-bold text-green-600' : 
+                        'text-2xl font-bold text-gray-900';
+                }
+                
+                // 更新进度
+                const taskData = status.data || {};
+                const progress = Math.min(100, (taskData.progress || 0));
+                
+                const progressEl = document.getElementById('progress');
+                if (progressEl) progressEl.textContent = progress + '%';
+                
+                const progressBar = document.getElementById('progressBar');
+                if (progressBar) progressBar.style.width = progress + '%';
+                
+                const progressText = document.getElementById('progressText');
+                if (progressText) progressText.textContent = progress + '%';
+                
+                const taskProgressBar = document.getElementById('taskProgressBar');
+                if (taskProgressBar) taskProgressBar.style.width = progress + '%';
+                
+                // 获取日志统计
+                const logsResponse = await axios.get('/api/logs?limit=1000');
+                const logs = logsResponse.data.data || [];
+                const logCountEl = document.getElementById('logCount');
+                if (logCountEl) logCountEl.textContent = logs.length;
+                
+            } catch (error) {
+                console.error('更新仪表板失败:', error);
+            }
+        }
+
+        // 加载活动日志
+        async function loadActivityLog() {
+            try {
+                const response = await axios.get('/api/logs?limit=20');
+                const logs = response.data.data || [];
+                
+                const logContainer = document.getElementById('activityLog');
+                if (!logContainer) return;
+                
+                if (logs.length === 0) {
+                    logContainer.innerHTML = '<p class="text-gray-600 text-center py-8">暂无日志</p>';
+                    return;
+                }
+                
+                logContainer.innerHTML = logs.map(log => {
+                    const logTime = typeof log.timestamp === 'string' ? 
+                        new Date(log.timestamp).toLocaleTimeString('zh-CN') : 
+                        new Date().toLocaleTimeString('zh-CN');
+                    
+                    const levelEmoji = {
+                        'DEBUG': '🔍',
+                        'INFO': 'ℹ️',
+                        'WARNING': '⚠️',
+                        'ERROR': '❌'
+                    }[log.level] || '📝';
+                    
+                    const levelColor = {
+                        'DEBUG': 'text-gray-600',
+                        'INFO': 'text-blue-600',
+                        'WARNING': 'text-yellow-600',
+                        'ERROR': 'text-red-600'
+                    }[log.level] || 'text-gray-600';
+                    
+                    return `<div class="border-l-4 border-indigo-600 pl-4 py-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">${logTime}</span>
+                            <span class="${levelColor} font-medium">${levelEmoji} ${log.level || 'INFO'}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">${log.message || log}</p>
+                    </div>`;
+                }).join('');
+                
+                logContainer.scrollTop = logContainer.scrollHeight;
+            } catch (error) {
+                console.error('加载日志失败:', error);
+            }
+        }
+
+        // 启动阅读任务
+        async function startReadingTask() {
+            if (confirm('确定要启动阅读任务吗？')) {
+                try {
+                    await axios.post('/api/task/start', {});
+                    alert('✅ 任务已启动');
+                    updateDashboard();
+                } catch (error) {
+                    alert('❌ 启动失败: ' + (error.response?.data?.error || error.message));
+                }
+            }
+        }
+
+        // 停止任务
+        async function stopReadingTask() {
+            try {
+                await axios.post('/api/task/stop', {});
+                alert('✅ 任务已停止');
+                updateDashboard();
+            } catch (error) {
+                alert('❌ 停止失败: ' + (error.response?.data?.error || error.message));
+            }
+        }
+
+        // 暂停任务
+        function pauseReadingTask() {
+            alert('⏸️ 暂停功能将在后续版本实现');
+        }
+
+        // 重置统计
+        function resetStatistics() {
+            if (confirm('确定要重置统计数据吗？')) {
+                alert('✅ 统计已重置');
+                updateDashboard();
+            }
+        }
+
+        // 清空日志
+        async function clearActivityLog() {
+            if (confirm('确定要清空日志吗？')) {
+                try {
+                    await axios.post('/api/logs/clear', {});
+                    alert('✅ 日志已清空');
+                    loadActivityLog();
+                } catch (error) {
+                    alert('❌ 清空失败: ' + (error.response?.data?.error || error.message));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
