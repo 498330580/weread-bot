@@ -75,6 +75,20 @@ WeRead Bot 是一个功能完善的微信读书自动阅读机器人，现已改
    • API: http://localhost:5000/api/health
 ```
 
+## 界面展示
+
+### 配置编辑页面
+![配置编辑](https://raw.githubusercontent.com/498330580/weread-bot/main/docs/img/配置.png)
+可视化配置界面，支持多种编辑模式，包括基础配置、阅读配置、网络配置、通知配置等，实时同步配置文件。
+
+### 仪表板
+![仪表板](https://raw.githubusercontent.com/498330580/weread-bot/main/docs/img/仪表盘.png)
+实时监控任务状态、性能指标、统计信息和活动日志，提供完整的运行数据可视化展示。
+
+### 主页
+![主页](https://raw.githubusercontent.com/498330580/weread-bot/main/docs/img/主页.png)
+Web版本控制面板，支持快速操作（启动任务、停止任务、暂停任务等）和配置文件管理，一站式管理所有功能。
+
 ## 快速开始
 
 ### 方式一：Web版本（推荐）
