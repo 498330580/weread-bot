@@ -96,8 +96,6 @@ class TaskManager:
             interval = self._parse_range(reading_interval)
             time.sleep(interval)
             request_count += 1
-            
-            self.log_manager.debug(f"📄 阅读请求 #{request_count}")
         
         self.task_data['progress'] = 100
         self.log_manager.info(
