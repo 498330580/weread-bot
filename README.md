@@ -301,8 +301,8 @@ python run.py
 
 ### Docker 单容器
 ```bash
-docker build -t weread-bot-web .
-docker run -p 5000:5000 weread-bot-web
+docker build -t 498330580/weread-bot .
+docker run -p 5000:5000 498330580/weread-bot
 ```
 
 ### Docker Compose
@@ -320,7 +320,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
 ```bash
 # Docker 重新映射
-docker run -p 8080:5000 weread-bot-web
+docker run -p 8080:5000 498330580/weread-bot
 
 # Gunicorn
 gunicorn -b 0.0.0.0:8080 app:app

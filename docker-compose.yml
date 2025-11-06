@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: weread-bot-web
+    container_name: weread-bot
     ports:
       - "5000:5000"
     environment:
