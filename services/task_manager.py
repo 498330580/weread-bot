@@ -42,7 +42,7 @@ class TaskManager:
                 self._merge_config(config, config_override)
             
             self.log_manager.info("📚 微信读书阅读任务启动")
-            self.log_manager.info(f"配置: {config}")
+            self._log_config_summary(config)
             
             # 这里集成原有的阅读逻辑
             # 由于篇幅限制，这里简化为模拟执行
@@ -116,6 +116,33 @@ class TaskManager:
             'is_running': self.is_running,
             'data': self.task_data
         }
+    
+    def _log_config_summary(self, config: Dict[str, Any]):
+        """记录配置摘要（美观格式）"""
+        try:
+            app_config = config.get('app', {})
+            reading_config = config.get('reading', {})
+            network_config = config.get('network', {})
+            
+            # 记录关键配置
+            self.log_manager.info(
+                f"⚙️  应用配置: "
+                f"模式={app_config.get('startup_mode', 'immediate')}, "
+                f"延迟={app_config.get('startup_delay', '1-10')}秒"
+            )
+            self.log_manager.info(
+                f"📖 阅读配置: "
+                f"模式={reading_config.get('mode', 'smart_random')}, "
+                f"时长={reading_config.get('target_duration', '60-70')}分钟, "
+                f"间隔={reading_config.get('reading_interval', '25-35')}秒"
+            )
+            self.log_manager.info(
+                f"🌐 网络配置: "
+                f"超时={network_config.get('timeout', 30)}s, "
+                f"重试={network_config.get('retry_times', 3)}次"
+            )
+        except Exception as e:
+            self.log_manager.debug(f"记录配置摘要失败: {e}")
     
     def _parse_range(self, range_str: str) -> float:
         """解析范围字符串，如 '60-70' 返回随机数"""
