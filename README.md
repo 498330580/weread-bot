@@ -1,8 +1,6 @@
 # WeRead Bot: 微信读书自动阅读机器人
 
-[![Docker Automated build](https://img.shields.io/docker/automated/498330580/weread-bot?style=flat-square)](https://hub.docker.com/r/498330580/weread-bot/)
 [![Docker Tags](https://img.shields.io/docker/v/498330580/weread-bot?sort=semver&style=flat-square&label=docker%20image)](https://hub.docker.com/r/498330580/weread-bot/)
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/498330580/weread-bot?style=flat-square)](https://hub.docker.com/r/498330580/weread-bot/)
 [![Release](https://img.shields.io/github/release/498330580/weread-bot?style=flat-square)](https://github.com/498330580/weread-bot/releases)
 [![Docker Build](https://img.shields.io/github/actions/workflow/status/498330580/weread-bot/docker-build.yml?style=flat-square&label=Docker%20Build)](https://github.com/498330580/weread-bot/actions/workflows/docker-build.yml)
 [![Release Build](https://img.shields.io/github/actions/workflow/status/498330580/weread-bot/release.yml?style=flat-square&label=Release)](https://github.com/498330580/weread-bot/actions/workflows/release.yml)
