@@ -1,7 +1,7 @@
 # WeRead Bot: 微信读书自动阅读机器人
 
 [![Auto Reading Bot](https://img.shields.io/github/actions/workflow/status/498330580/weread-bot/auto-reading.yml?style=flat-square&label=Auto%20Reading)](https://github.com/498330580/weread-bot/actions/workflows/auto-reading.yml)
-[![Docker Tags](https://img.shields.io/docker/v/498330580/weread-bot?sort=semver&style=flat-square&label=docker%20image)](https://hub.docker.com/r/498330580/weread-bot/)
+[![Docker Tags](https://img.shields.io/docker/v/498330580/weread-bot?style=flat-square&label=docker%20image)](https://hub.docker.com/r/498330580/weread-bot/)
 [![Commit activity](https://img.shields.io/github/commit-activity/m/498330580/weread-bot?style=flat-square)](https://hub.docker.com/r/498330580/weread-bot/)
 [![Python](https://img.shields.io/badge/python-3.10+-blue?style=flat-square)](https://www.python.org/)
 [![GitHub license](https://img.shields.io/github/license/498330580/weread-bot?style=flat-square)](https://github.com/498330580/weread-bot/blob/main/LICENSE)
@@ -12,7 +12,6 @@ WeRead Bot 是一个功能完善的微信读书自动阅读机器人，现已改
 
 - [核心特性](#核心特性)
 - [运行预览](#运行预览)
-- [界面展示](#界面展示)
 - [快速开始](#快速开始)
 - [项目结构](#项目结构)
 - [配置说明](#配置说明)
@@ -70,20 +69,6 @@ WeRead Bot 是一个功能完善的微信读书自动阅读机器人，现已改
    • 配置: http://localhost:5000/config
    • API: http://localhost:5000/api/health
 ```
-
-## 界面展示
-
-### 配置编辑页面
-![config](https://raw.githubusercontent.com/498330580/weread-bot/main/docs/img/配置.png)
-可视化配置界面，支持多种编辑模式，实时同步配置文件
-
-### 仪表板
-![dashboard](https://raw.githubusercontent.com/498330580/weread-bot/main/docs/img/仪表盘.png)
-实时监控任务状态、性能指标、统计信息和活动日志
-
-### 主页
-![homepage](https://raw.githubusercontent.com/498330580/weread-bot/main/docs/img/主页.png)
-Web版本控制面板，支持快速操作和配置文件管理
 
 ## 快速开始
 
