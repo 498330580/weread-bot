@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   weread-bot:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: 498330580/weread-bot:latest
     container_name: weread-bot
     ports:
       - "5000:5000"
