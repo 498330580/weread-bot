@@ -33,7 +33,7 @@ class ConfigManager:
         return {
             'app': {
                 'name': 'WeReadBot',
-                'version': '0.3.1',
+                'version': '1.0.0',
                 'startup_mode': 'immediate',
                 'startup_delay': '1-10'
             },
