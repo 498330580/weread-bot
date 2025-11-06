@@ -70,6 +70,20 @@ WeRead Bot 是一个功能完善的微信读书自动阅读机器人，现已改
    • API: http://localhost:5000/api/health
 ```
 
+## 界面展示
+
+### 配置编辑页面
+![配置编辑](docs/img/config-editor.png)
+可视化配置界面，支持多种编辑模式，实时同步配置文件
+
+### 仪表板
+![仪表板](docs/img/dashboard.png)
+实时监控任务状态、性能指标、统计信息和活动日志
+
+### 主页
+![主页](docs/img/homepage.png)
+Web版本控制面板，支持快速操作和配置文件管理
+
 ## 快速开始
 
 ### 方式一：Web版本（推荐）
@@ -301,8 +315,8 @@ python run.py
 
 ### Docker 单容器
 ```bash
-docker build -t 498330580/weread-bot .
-docker run -p 5000:5000 498330580/weread-bot
+docker build -t weread-bot-web .
+docker run -p 5000:5000 weread-bot-web
 ```
 
 ### Docker Compose
@@ -320,7 +334,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
 ```bash
 # Docker 重新映射
-docker run -p 8080:5000 498330580/weread-bot
+docker run -p 8080:5000 weread-bot-web
 
 # Gunicorn
 gunicorn -b 0.0.0.0:8080 app:app
